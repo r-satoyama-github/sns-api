@@ -26,6 +26,7 @@ router.post("/post", isAuthenticated, async (req, res) => {
             id: true,
             username: true,
             email: true,
+            profile: true,
           },
         },
       },
@@ -50,6 +51,7 @@ router.get("/latest_posts", async (req, res) => {
             id: true,
             username: true,
             email: true,
+            profile: true,
           },
         },
       },
@@ -58,6 +60,36 @@ router.get("/latest_posts", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "サーバーエラーです。" });
+  }
+});
+
+// 閲覧しているユーザの投稿取得用API
+router.get("/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        authorId: parseInt(userId),
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            profile: true,
+          },
+        },
+      },
+    });
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error(error);
   }
 });
 

@@ -20,4 +20,28 @@ router.get("/find", isAuthenticated, async (req, res) => {
   }
 });
 
+router.get("/profile/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const profile = await prisma.profile.findUnique({
+      where: { userId: parseInt(userId) },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!profile) {
+      return res
+        .status(404)
+        .json({ message: "プロフィールが見つかりませんでした。" });
+    }
+
+    res.status(200).json(profile);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
