@@ -44,4 +44,25 @@ router.get("/profile/:userId", async (req, res) => {
   }
 });
 
+// 自己紹介文の更新
+router.put("/profile/:userId", isAuthenticated, async (req, res) => {
+  const { userId } = req.params;
+  const { bio } = req.body;
+  try {
+    const profile = await prisma.profile.update({
+      where: { userId: parseInt(userId) },
+      data: {
+        bio: bio,
+      },
+      select: {
+        bio: true,
+      },
+    });
+    return res.status(200).json(profile);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
